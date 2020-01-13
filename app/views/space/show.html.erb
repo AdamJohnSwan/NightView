@@ -1,0 +1,137 @@
+<style>
+	body {
+		overflow:hidden;
+	}
+	*, *:before, *:after {
+		box-sizing: border-box;
+	}
+</style>
+
+<div class="wrap">
+	<div id="field">
+		<canvas id="canvas"></canvas><canvas id="lines"></canvas>
+	</div>
+	<div id="back-button-container">
+		<div id="back-button">
+			<%= link_to "Home", root_path %>
+		</div>
+	</div>
+    <div id="lines-toggle-container">
+        <div id="lines-toggle">
+            <button>Toggle  Lines (Space Bar)</button>
+        </div>
+    </div>
+</div>
+
+<%= javascript_include_tag "starfield" %>
+<script>
+var container = document.getElementById('field');
+//starfield vars
+var starfield = new Starfield();
+//constellation vars
+var canvas = document.getElementById('canvas');
+var lines = document.getElementById('lines');
+var sets = <%= @points %>;
+//movement vars
+var lFollowX = 0,
+    lFollowY = 0,
+    x = 0,
+    y = 0,
+    friction = 1 / 30;
+	amountX = 500;
+	amountY = 300;
+
+//creates starfield
+starfield.stars = 500;
+starfield.minVelocity = 0;
+starfield.maxVelocity = 0;
+starfield.width = window.innerWidth * 2;
+starfield.height = window.innerHeight * 3;
+starfield.initialise(container);
+starfield.start();
+
+//=====================
+//draws stars and lines
+function drawCircle(centerX, centerY){
+	let rad = 2;
+	var context = canvas.getContext('2d');
+	context.fillStyle = '#ffffff';
+	context.beginPath();
+	context.arc(centerX, centerY, rad, 0, 2 * Math.PI, false);
+	context.fill();
+}
+
+function drawLine(startX, startY, endX, endY) {
+	let context = lines.getContext("2d");
+	context.strokeStyle = '#ffffff';
+	context.beginPath();
+	context.moveTo(startX, startY);
+	context.lineTo(endX, endY);
+	context.stroke();
+}
+
+
+//create canvas size
+canvas.width = sets[0][0]
+canvas.height = sets[0][1]
+lines.width = sets[0][0]
+lines.height = sets[0][1]
+
+sets.forEach(function(set, set_index) {
+	if(set_index == 0) { return; }
+	set.forEach(function(point, point_index) {
+		drawCircle(point[0][0], point[0][1]);
+		if(point_index != set.length - 1) {
+			drawLine(point[0][0], point[0][1], set[point_index+1][0][0],  set[point_index+1][0][1]);
+		} else {
+			drawLine(point[0][0], point[0][1], set[0][0][0],  set[0][0][1]);
+		}
+	});
+});
+//=====================
+//moves around starscape
+function moveBackground() {
+  x += (lFollowX - x) * friction;
+  y += (lFollowY - y) * friction;
+
+  translate = 'translate(' + x + 'px, ' + y + 'px)';
+
+  container.style["-webit-transform"] = translate
+  container.style["-moz-transform"] = translate
+  container.style.transform = translate
+
+  window.requestAnimationFrame(moveBackground);
+}
+window.onmousemove = function(e) {
+  var lMouseX = Math.max(-100, Math.min(100, window.innerWidth / 2 - e.clientX));
+  var lMouseY = Math.max(-100, Math.min(100, window.innerHeight / 2 - e.clientY))
+  lFollowX = (amountX * lMouseX) / 100; // 100 : 12 = lMouxeX : lFollow
+  lFollowY = (amountY * lMouseY) / 100;
+};
+// center container and constellations
+container.style.width = window.innerWidth * 2 + "px";
+container.style.height = window.innerHeight * 3 + "px";
+container.style.marginTop = -1 * window.innerHeight + "px";
+container.style.marginLeft = -1 * window.innerWidth / 2  + "px";
+
+moveBackground();
+
+//Toggle Lines
+toggle = document.getElementById('lines-toggle')
+toggle.addEventListener("click", function() {
+    if (lines.style.display === "none") {
+        lines.style.display = "block";
+    } else {
+        lines.style.display = "none";
+    }
+});
+document.body.onkeyup = function(e){
+    if(e.keyCode == 32){
+        if (lines.style.display === "none") {
+            lines.style.display = "block";
+        } else {
+            lines.style.display = "none";
+        }
+    }
+}
+</script>
