@@ -33,8 +33,8 @@ COPY . .
 RUN gem install bundler -v 1.17.2
 RUN gem install foreman -v 0.85.0
 RUN bundle install --verbose --jobs 20 --retry 5
-RUN rails db:migrate
-#RUN rake assets:precompile
+RUN RAILS_ENV=production rails db:migrate
+RUN RAILS_ENV=production rake assets:precompile
 
 RUN npm install -g yarn
 RUN yarn install --check-files
@@ -46,4 +46,4 @@ EXPOSE 3000
 # The main command to run when the container starts. Also
 # tell the Rails dev server to bind to all interfaces by
 # default.
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-e", "production"]
