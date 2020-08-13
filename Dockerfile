@@ -26,9 +26,6 @@ RUN curl -sL https://deb.nodesource.com/setup_11.x | bash -
 RUN apt-get install -y nodejs
 
 # Copy the Gemfile as well as the Gemfile.lock and install
-# the RubyGems. This is a separate step so the dependencies
-# will be cached unless changes to one of those two files
-# are made.
 COPY . .
 RUN gem install bundler -v 1.17.2
 RUN gem install foreman -v 0.85.0
@@ -46,4 +43,4 @@ EXPOSE 3000
 # The main command to run when the container starts. Also
 # tell the Rails dev server to bind to all interfaces by
 # default.
-CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0", "-e", "production"]
+CMD ["./entry-file"]

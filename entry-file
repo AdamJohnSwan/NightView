@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+
+# Rails fails to start if this file exists on startup
+rm -f /app/tmp/pids/server.pid
+
+cd /app
+bundle exec rails server -b 0.0.0.0 -e production
